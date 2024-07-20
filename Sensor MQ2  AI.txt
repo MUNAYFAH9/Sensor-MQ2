@@ -1,0 +1,46 @@
+const int buzzerPin = 12; // دبوس خرج الصفارة
+const int flamePin = 2; // دبوس إدخال مستشعر اللهب
+const int gasPin = A0; // دبوس إدخال حساس الغاز MQ2
+const int greenLedPin = 9; // دبوس LED الأخضر
+const int yellowLedPin = 10; // دبوس LED الأصفر
+const int redLedPin = 11; // دبوس LED الأحمر
+int Flame = HIGH; // متغير لقراءة إشارة مستشعر اللهب
+int gasValue; // قراءة حساس الغاز MQ2
+int duration = 5; // مدة تشغيل الصفارة بالثواني
+unsigned long startTime; // وقت بدء تشغيل الصفارة
+
+#include <Time.h> // تضمين مكتبة Time لاستخدام وظيفة millis()
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT); // تعيين دبوس الصفارة كمخرج
+  pinMode(flamePin, INPUT); // تعيين دبوس مستشعر اللهب كمدخل
+  pinMode(gasPin, INPUT); // تعيين دبوس حساس الغاز كمُدخل
+  pinMode(greenLedPin, OUTPUT); // تعيين دبوس LED الأخضر كمخرج
+  pinMode(yellowLedPin, OUTPUT); // تعيين دبوس LED الأصفر كمخرج
+  pinMode(redLedPin, OUTPUT); // تعيين دبوس LED الأحمر كمخرج
+  Serial.begin(9600); // إنشاء اتصال تسلسلي (اختياري)
+}
+
+void loop() {
+  Flame = digitalRead(flamePin); // قراءة إشارة مستشعر اللهب
+  gasValue = analogRead(gasPin); // قراءة قيمة حساس الغاز MQ2
+
+  // الكود المخصص لحساس الغاز MQ2
+  if (gasValue > 200) { // إذا تم الكشف عن تسرب الغاز
+    digitalWrite(greenLedPin, LOW); // أطفئ LED الأخضر
+    digitalWrite(yellowLedPin, HIGH); // شغل LED الأصفر
+    digitalWrite(redLedPin, LOW); // أطفئ LED الأحمر
+    playAlarmForDuration(duration); // شغل الصفارة لـ 5 ثوانٍ
+    Serial.println("Gas Leak Detected!"); // طباعة رسالة تحذير على الشاشة التسلسلية
+  } else {
+    digitalWrite(yellowLedPin, LOW); // أطفئ LED الأصفر
+  }
+
+  // الكود المخصص لحساس النار
+  if (Flame == LOW) { // إذا تم استشعار النار
+    digitalWrite(greenLedPin, LOW); // أطفئ LED الأخضر
+    digitalWrite(yellowLedPin, LOW); // أطفئ LED الأصفر
+    digitalWrite(redLedPin, HIGH); // شغل LED الأحمر
+    playAlarmForDuration(duration); // شغل الصفارة لـ 5 ثوانٍ
+  } else {
+    digitalWrite(redLedPin, LOW); // أطفئ
